@@ -1,0 +1,1 @@
+from .basicmethod import BasicMethod
