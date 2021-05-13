@@ -7,13 +7,13 @@ import dataloading.generated
 def get_problem_functions(y, X, penalty):
     psi = lambda x: np.abs(x).sum()*penalty
     f = lambda x: np.square(np.linalg.norm(y-np.matmul(X, x)))/2
-    gradient_f = lambda x: (np.transpose(np.transpose(x)*X) - np.transpose(y)).sum(axis=1)
+    gradient_f = lambda x: np.matmul((np.matmul(X, x)-y),X)
     return psi, f, gradient_f
 
 if __name__ == '__main__':
-    n = 1000
+    n = 100
     p = 2
-    no_classes = 3
+    no_classes = 2
     penalty = 1
 
     X, y = dataloading.generated.get_data(p, n, no_classes)
@@ -43,6 +43,9 @@ if __name__ == '__main__':
     for _ in range(no_steps):
         basic.compute_steps(1)
         errors.append(f(basic.y)+psi(basic.y))
+        # with np.printoptions(threshold=np.inf):
+        #     print(np.matmul(X, basic.y))
+        #     print(y)
     
     print("Final solution:")
     print(basic.y)
