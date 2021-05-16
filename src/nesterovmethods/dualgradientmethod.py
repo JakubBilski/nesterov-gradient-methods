@@ -30,4 +30,4 @@ class DualGradientMethod:
             self.A = self.A + self.gradient_f(self.v) / M
             self.B = self.B + 1 / M
             changes = self.A - self.v_0
-            self.v = three_cases(changes, self.penalty, 1)
+            self.v = three_cases(changes, self.penalty*self.B, 1)
