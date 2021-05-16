@@ -26,31 +26,48 @@ if __name__ == '__main__':
 
     np.random.seed(1)
     y_0 = np.random.random(size=p)
+    gamma_u = 2
+    gamma_d = 1.2
+    L_0 = 2
+
 
     basic = nvms.BasicMethod(
         penalty=penalty,
-        gamma_u=1.001,
-        gamma_d=1,
-        L_0=1,
+        gamma_u=gamma_u,
+        gamma_d=gamma_d,
+        L_0=L_0,
         y_0=y_0,
         psi=psi,
         f=f,
         gradient_f=gradient_f
     )
 
+    dual = nvms.DualGradientMethod(
+        penalty=penalty,
+        gamma_u=gamma_u,
+        gamma_d=gamma_d,
+        L_0=L_0,
+        v_0=y_0,
+        psi=psi,
+        f=f,
+        gradient_f=gradient_f
+    )
+
     no_steps = 100
-    errors = []
+    basic_errors = []
+    dual_errors = []
     for _ in range(no_steps):
         basic.compute_steps(1)
-        errors.append(f(basic.y)+psi(basic.y))
-        # with np.printoptions(threshold=np.inf):
-        #     print(np.matmul(X, basic.y))
-        #     print(y)
+        basic_errors.append(f(basic.y)+psi(basic.y))
+        dual.compute_steps(1)
+        dual_errors.append(f(dual.y)+psi(dual.y))
     
     print("Final solution:")
     print(basic.y)
+    print(dual.y)
     
     fig, ax = plt.subplots()
-    ax.plot(range(no_steps), errors, label='basic')
+    ax.plot(range(no_steps), basic_errors, label='basic')
+    ax.plot(range(no_steps), dual_errors, label='dual gradient')
     plt.legend()
     plt.show()
