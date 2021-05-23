@@ -4,62 +4,40 @@ import numpy as np
 
 
 class AcceleratedMethod:
-    def __init__(self, L_0, mi, x_0, gamma_u, f, gradient_f, penalty) -> None:
-        self.L_k = L_0
+    def __init__(self, L_0, mi, x_0, gamma_u, gamma_d, f, gradient_f, penalty) -> None:
+        self.L = L_0
         self.mi = mi
         self.x_0 = x_0
-        self.x_k = x_0
+        self.x = x_0
         self.gamma_u = gamma_u
-        self.A_k = 0
+        self.gamma_d = gamma_d
+        self.A = 0
         self.penalty = penalty
         self.f = f
         self.gradient_f = gradient_f
-        self.C_k = 0
-        self.b_k = 0
-        self.v_k = x_0  # idk...
+        self.C = 0
+        self.v = x_0
 
     def accelerated_gradient_iteration(self):
-        L = self.L_k
+        L = self.L
         mi = self.mi
-        A = self.A_k
-        x = self.x_k
-        v = self.v_k
-        x_0 = self.x_0
-        penalty = self.penalty
-  
+
         while True:
-            a = 2 + 2*mi*A + math.sqrt((2+2*mi*A)*(2+2*mi*A) + 8*L*A*(1+mi*A))
+            a = 2 + 2*mi*self.A + math.sqrt((2+2*mi*self.A)*(2+2*mi*self.A) + 8*L*self.A*(1+mi*self.A))
             a = a/(2*L)
-            y = (A*x + a*v) / (A + a)
-
-            T = (np.less_equal(self.gradient_f(y) - L*y, -penalty)*(L*y - self.gradient_f(y) - penalty) + np.greater_equal(self.gradient_f(y) - L*y, penalty)*(L*y - self.gradient_f(y) + penalty))/L
-
-            if np.dot(self.gradient_f(T), y-T) >= (np.dot(self.gradient_f(T), self.gradient_f(T))/L):
+            y = (self.A*self.x + a*self.v) / (self.A + a)
+            T = three_cases(self.gradient_f(y) - L*y, self.penalty, L)
+            if np.dot(self.gradient_f(T), y-T)*L >= np.dot(self.gradient_f(T), self.gradient_f(T)):
                 break
-
             L = L*self.gamma_u
 
-        y_k = y
-        M_k = L
-        a_k1 = a
-        L_k1 = M_k/self.gamma_u
-        x_k1 = (np.less_equal(self.gradient_f(y) - M_k*y, -penalty)*(M_k*y - self.gradient_f(y) - penalty) + np.greater_equal(self.gradient_f(y) - M_k*y, penalty)*(M_k*y - self.gradient_f(y) + penalty))/M_k
-        A_k1 = A + a_k1
-
-        C_k1 = self.C_k + a_k1 * self.gradient_f(x_k1)
-        b_k1 = self.b_k + a_k1
-
-        v_k1 = (np.less_equal(C_k1 - x_0, -penalty*b_k1)*(x_0 - C_k1 - penalty*b_k1) + np.greater_equal(C_k1 - x_0, penalty*b_k1)*(x_0 - C_k1 + penalty*b_k1))
-        
-        self.L_k = L_k1
-        self.x_k = x_k1
-        self.A_k = A_k1
-        self.C_k = C_k1
-        self.b_k = b_k1
-        self.v_k = v_k1
-
-        self.y = y_k
-        self.M = M_k
+        M = L
+        self.L = M/self.gamma_d
+        self.x = three_cases(self.gradient_f(y) - M*y, self.penalty, M)
+        self.C = self.C + a * self.gradient_f(self.x)
+        self.A = self.A + a
+        self.v = three_cases(self.C - self.x_0, self.penalty*self.A, 1)
+        self.y = y
 
     def compute_steps(self, no_steps):
         for _ in range(no_steps):
