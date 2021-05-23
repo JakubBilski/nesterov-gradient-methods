@@ -32,10 +32,9 @@ class AcceleratedMethod:
             a = a/(2*L)
             y = (A*x + a*v) / (A + a)
 
-            changes = self.gradient_f(y) - L*y
-            T = three_cases(changes, penalty, L)
+            T = (np.less_equal(self.gradient_f(y) - L*y, -penalty)*(L*y - self.gradient_f(y) - penalty) + np.greater_equal(self.gradient_f(y) - L*y, penalty)*(L*y - self.gradient_f(y) + penalty))/L
 
-            if np.dot(self.gradient_f(T), y-T) >= np.linalg.norm(self.gradient_f(T))*np.linalg.norm(self.gradient_f(T))/L:
+            if np.dot(self.gradient_f(T), y-T) >= (np.dot(self.gradient_f(T), self.gradient_f(T))/L):
                 break
 
             L = L*self.gamma_u
@@ -44,15 +43,14 @@ class AcceleratedMethod:
         M_k = L
         a_k1 = a
         L_k1 = M_k/self.gamma_u
-        changes = self.gradient_f(y_k) - M_k*y_k
-        x_k1 = three_cases(changes, self.penalty, M_k)
+        x_k1 = (np.less_equal(self.gradient_f(y) - M_k*y, -penalty)*(M_k*y - self.gradient_f(y) - penalty) + np.greater_equal(self.gradient_f(y) - M_k*y, penalty)*(M_k*y - self.gradient_f(y) + penalty))/M_k
         A_k1 = A + a_k1
 
         C_k1 = self.C_k + a_k1 * self.gradient_f(x_k1)
         b_k1 = self.b_k + a_k1
 
         v_k1 = (np.less_equal(C_k1 - x_0, -penalty*b_k1)*(x_0 - C_k1 - penalty*b_k1) + np.greater_equal(C_k1 - x_0, penalty*b_k1)*(x_0 - C_k1 + penalty*b_k1))
-
+        
         self.L_k = L_k1
         self.x_k = x_k1
         self.A_k = A_k1

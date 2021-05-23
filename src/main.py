@@ -28,10 +28,10 @@ if __name__ == '__main__':
 
     np.random.seed(1)
     y_0 = np.random.random(size=p)
-    gamma_u = 2
-    gamma_d = 1.2
-    L_0 = 2
-    mi = 1
+    gamma_u = 1.01
+    gamma_d = 2
+    L_0 = 1
+    mi = 0
 
     basic = nvms.BasicMethod(
         penalty=penalty,
@@ -57,11 +57,11 @@ if __name__ == '__main__':
 
     accelerated = nvms.AcceleratedMethod(
         L_0=L_0,
-        mi=mi, 
-        x_0=y_0, 
-        gamma_u=gamma_u, 
-        f=f, 
-        gradient_f=gradient_f, 
+        mi=mi,
+        x_0=y_0,
+        gamma_u=gamma_u,
+        f=f,
+        gradient_f=gradient_f,
         penalty=penalty
     )
 
