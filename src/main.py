@@ -1,30 +1,32 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from tqdm import tqdm
 
 import nesterovmethods as nvms
 import dataloading.generated
+import dataloading.real
 
 
 def get_problem_functions(y, X, penalty):
     def psi(x): return np.abs(x).sum()*penalty
-    def f(x): return np.square(np.linalg.norm(y-np.matmul(X, x)))/2
+    def f(x): return np.square(np.linalg.norm(y-np.matmul(X, x), ord=2))/2
     def gradient_f(x): return np.matmul((np.matmul(X, x)-y), X)
     return psi, f, gradient_f
 
 
 if __name__ == '__main__':
-    n = 100
-    p = 2
-    no_classes = 2
     penalty = 1
+    no_steps = 1000
 
-    X, y = dataloading.generated.get_data(p, n, no_classes)
+    X, y = dataloading.generated.get_data(10, 100)
+    # X, y = dataloading.real.get_data()
+
+    n = y.shape[0]
+    p = X.shape[1]
 
     # fig, ax = plt.subplots()
     # ax.scatter(X[:, 0], X[:, 1], c=y)
     # plt.show()
-
-    psi, f, gradient_f = get_problem_functions(y, X, penalty)
 
     np.random.seed(1)
     y_0 = np.random.random(size=p)
@@ -32,6 +34,8 @@ if __name__ == '__main__':
     gamma_d = 2
     L_0 = 10
     mi = 0
+
+    psi, f, gradient_f = get_problem_functions(y, X, penalty)
 
     basic = nvms.BasicMethod(
         penalty=penalty,
@@ -66,11 +70,10 @@ if __name__ == '__main__':
         penalty=penalty
     )
 
-    no_steps = 100
     basic_errors = []
     dual_errors = []
     accelerated_errors = []
-    for _ in range(no_steps):
+    for _ in tqdm(range(no_steps)):
         basic.compute_steps(1)
         basic_errors.append(f(basic.y)+psi(basic.y))
         dual.compute_steps(1)
@@ -87,5 +90,8 @@ if __name__ == '__main__':
     ax.plot(range(no_steps), basic_errors, label='basic')
     ax.plot(range(no_steps), dual_errors, label='dual gradient')
     ax.plot(range(no_steps), accelerated_errors, label='accelerated')
+    ax.set_xlabel("step")
+    ax.set_ylabel("loss function")
+    ax.set_yscale("log")
     plt.legend()
     plt.show()

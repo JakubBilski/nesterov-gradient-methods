@@ -26,6 +26,8 @@ class AcceleratedMethod:
             a = 2 + 2*mi*self.A + math.sqrt((2+2*mi*self.A)*(2+2*mi*self.A) + 8*L*self.A*(1+mi*self.A))
             a = a/(2*L)
             y = (self.A*self.x + a*self.v) / (self.A + a)
+            if np.isnan(self.A + a):
+                return
             T = three_cases(self.gradient_f(y) - L*y, self.penalty, L)
             if np.dot(self.gradient_f(T), y-T)*L >= np.dot(self.gradient_f(T), self.gradient_f(T)):
                 break
