@@ -98,6 +98,7 @@ if __name__ == '__main__':
     ax.set_xlabel("step")
     ax.set_ylabel("loss function")
     ax.set_yscale("log")
+    ax.set_title("Loss function by number of steps")
     plt.legend()
     plt.show()
 
@@ -108,5 +109,6 @@ if __name__ == '__main__':
     ax.set_xlabel("step")
     ax.set_ylabel("L")
     ax.set_yscale("log")
+    ax.set_title("Change of estimated L by number of steps ")
     plt.legend()
     plt.show()
