@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
+import time
 
 import nesterovmethods as nvms
 import dataloading.generated
@@ -29,7 +30,7 @@ if __name__ == '__main__':
     # plt.show()
 
     penalty = 1
-    no_steps = 200
+    no_steps = 2000
     gamma_u = 2
     gamma_d = 2
     L_0 = 10
@@ -78,14 +79,23 @@ if __name__ == '__main__':
     basic_Ls = []
     dual_Ls = []
     accelerated_Ls = []
+    basic_times = []
+    dual_times = []
+    accelerated_times = []
     for _ in tqdm(range(no_steps)):
+        start_time = time.time()
         basic.compute_steps(1)
+        basic_times.append(time.time()-start_time)
         basic_errors.append(f(basic.y)+psi(basic.y))
         basic_Ls.append(basic.L)
+        start_time = time.time()
         dual.compute_steps(1)
         dual_errors.append(f(dual.y)+psi(dual.y))
+        dual_times.append(time.time()-start_time)
         dual_Ls.append(dual.L)
+        start_time = time.time()
         accelerated.compute_steps(1)
+        accelerated_times.append(time.time()-start_time)
         accelerated_errors.append(f(accelerated.y)+psi(accelerated.y))
         accelerated_Ls.append(accelerated.L)
 
@@ -108,9 +118,9 @@ if __name__ == '__main__':
 
 
     steps_mean = 10
-    mean_basic_Ls = [sum(basic_Ls[i-steps_mean:i]) for i in range(steps_mean, len(basic_Ls))]
-    mean_dual_Ls = [sum(dual_Ls[i-steps_mean:i]) for i in range(steps_mean, len(dual_Ls))]
-    mean_accelerated_Ls = [sum(accelerated_Ls[i-steps_mean:i]) for i in range(steps_mean, len(accelerated_Ls))]
+    mean_basic_Ls = [sum(basic_Ls[i-steps_mean:i])/steps_mean for i in range(steps_mean, len(basic_Ls))]
+    mean_dual_Ls = [sum(dual_Ls[i-steps_mean:i])/steps_mean for i in range(steps_mean, len(dual_Ls))]
+    mean_accelerated_Ls = [sum(accelerated_Ls[i-steps_mean:i])/steps_mean for i in range(steps_mean, len(accelerated_Ls))]
 
     fig, ax = plt.subplots(figsize=(9,9))
     ax.plot(range(steps_mean, no_steps), mean_basic_Ls, label='basic')
