@@ -102,6 +102,7 @@ if __name__ == '__main__':
     ax.set_ylabel("loss function")
     ax.set_yscale("log")
     plt.suptitle(f"penalty {penalty}, gamma_u {gamma_u}, gamma_d {gamma_d}, L_0 {L_0}, mi {mi}")
+    ax.set_title("Loss function by number of steps")
     plt.legend()
     plt.show()
 
