@@ -15,12 +15,12 @@ def get_problem_functions(y, X, penalty):
 
 
 if __name__ == '__main__':
-    penalty = 100
-    no_steps = 1000
+    use_generated_data = True
 
-    X, y = dataloading.generated.get_data(1000, 100)
-    # X, y = dataloading.real.get_data()
-
+    if use_generated_data:
+        X, y = dataloading.generated.get_data(1000, 100)
+    else:
+        X, y = dataloading.real.get_data()
     n = y.shape[0]
     p = X.shape[1]
 
@@ -28,12 +28,14 @@ if __name__ == '__main__':
     # ax.scatter(X[:, 0], X[:, 1], c=y)
     # plt.show()
 
-    np.random.seed(1)
-    y_0 = np.random.random(size=p)
+    penalty = 1
+    no_steps = 200
     gamma_u = 2
     gamma_d = 2
     L_0 = 10
     mi = 0
+    np.random.seed(1)
+    y_0 = np.random.random(size=p)
 
     psi, f, gradient_f = get_problem_functions(y, X, penalty)
 
@@ -92,22 +94,30 @@ if __name__ == '__main__':
     print(dual.y)
     print(accelerated.y)
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(9,9))
     ax.plot(range(no_steps), basic_errors, label='basic')
     ax.plot(range(no_steps), dual_errors, label='dual gradient')
     ax.plot(range(no_steps), accelerated_errors, label='accelerated')
     ax.set_xlabel("step")
     ax.set_ylabel("loss function")
     ax.set_yscale("log")
+    plt.suptitle(f"penalty {penalty}, gamma_u {gamma_u}, gamma_d {gamma_d}, L_0 {L_0}, mi {mi}")
     plt.legend()
     plt.show()
 
-    fig, ax = plt.subplots()
-    ax.plot(range(no_steps), basic_Ls, label='basic')
-    ax.plot(range(no_steps), dual_Ls, label='dual gradient')
-    ax.plot(range(no_steps), accelerated_Ls, label='accelerated')
+
+    steps_mean = 10
+    mean_basic_Ls = [sum(basic_Ls[i-steps_mean:i]) for i in range(steps_mean, len(basic_Ls))]
+    mean_dual_Ls = [sum(dual_Ls[i-steps_mean:i]) for i in range(steps_mean, len(dual_Ls))]
+    mean_accelerated_Ls = [sum(accelerated_Ls[i-steps_mean:i]) for i in range(steps_mean, len(accelerated_Ls))]
+
+    fig, ax = plt.subplots(figsize=(9,9))
+    ax.plot(range(steps_mean, no_steps), mean_basic_Ls, label='basic')
+    ax.plot(range(steps_mean, no_steps), mean_dual_Ls, label='dual gradient')
+    ax.plot(range(steps_mean, no_steps), mean_accelerated_Ls, label='accelerated')
     ax.set_xlabel("step")
-    ax.set_ylabel("L")
+    ax.set_ylabel(f"mean L value in last {steps_mean} steps")
     ax.set_yscale("log")
+    plt.suptitle(f"penalty {penalty}, gamma_u {gamma_u}, gamma_d {gamma_d}, L_0 {L_0}, mi {mi}")
     plt.legend()
     plt.show()
