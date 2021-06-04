@@ -15,10 +15,7 @@ def get_problem_functions(y, X, penalty):
 
 
 if __name__ == '__main__':
-    penalty = 100
-    no_steps = 1000
-
-    X, y = dataloading.generated.get_data(1000, 100)
+    X, y = dataloading.generated.get_data(10, 100)
     # X, y = dataloading.real.get_data()
 
     n = y.shape[0]
@@ -29,6 +26,8 @@ if __name__ == '__main__':
     # plt.show()
 
     np.random.seed(1)
+    penalty = 1
+    no_steps = 1000
     y_0 = np.random.random(size=p)
     gamma_u = 2
     gamma_d = 2
