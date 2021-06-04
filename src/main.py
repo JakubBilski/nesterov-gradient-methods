@@ -15,10 +15,10 @@ def get_problem_functions(y, X, penalty):
 
 
 if __name__ == '__main__':
-    penalty = 1
+    penalty = 100
     no_steps = 1000
 
-    X, y = dataloading.generated.get_data(10, 100)
+    X, y = dataloading.generated.get_data(1000, 100)
     # X, y = dataloading.real.get_data()
 
     n = y.shape[0]
@@ -73,13 +73,19 @@ if __name__ == '__main__':
     basic_errors = []
     dual_errors = []
     accelerated_errors = []
+    basic_Ls = []
+    dual_Ls = []
+    accelerated_Ls = []
     for _ in tqdm(range(no_steps)):
         basic.compute_steps(1)
         basic_errors.append(f(basic.y)+psi(basic.y))
+        basic_Ls.append(basic.L)
         dual.compute_steps(1)
         dual_errors.append(f(dual.y)+psi(dual.y))
+        dual_Ls.append(dual.L)
         accelerated.compute_steps(1)
         accelerated_errors.append(f(accelerated.y)+psi(accelerated.y))
+        accelerated_Ls.append(accelerated.L)
 
     print("Final solution:")
     print(basic.y)
@@ -92,6 +98,16 @@ if __name__ == '__main__':
     ax.plot(range(no_steps), accelerated_errors, label='accelerated')
     ax.set_xlabel("step")
     ax.set_ylabel("loss function")
+    ax.set_yscale("log")
+    plt.legend()
+    plt.show()
+
+    fig, ax = plt.subplots()
+    ax.plot(range(no_steps), basic_Ls, label='basic')
+    ax.plot(range(no_steps), dual_Ls, label='dual gradient')
+    ax.plot(range(no_steps), accelerated_Ls, label='accelerated')
+    ax.set_xlabel("step")
+    ax.set_ylabel("L")
     ax.set_yscale("log")
     plt.legend()
     plt.show()

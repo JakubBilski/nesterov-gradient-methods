@@ -24,18 +24,18 @@ class AcceleratedMethod:
 
         while True:
             a = 2 + 2*mi*self.A + math.sqrt((2+2*mi*self.A)*(2+2*mi*self.A) + 8*L*self.A*(1+mi*self.A))
-            a = a/(2*L)
-            y = (self.A*self.x + a*self.v) / (self.A + a)
+            y = (self.A*self.x*2*L + a*self.v) / (self.A*2*L + a)
             T = three_cases(self.gradient_f(y) - L*y, self.penalty, L)
-            if np.dot(self.gradient_f(T), y-T)*L >= np.dot(self.gradient_f(T), self.gradient_f(T)):
+            diff = self.gradient_f(y) - self.gradient_f(T)
+            if np.dot(diff, y-T) >= (np.linalg.norm(diff, ord=2)**2)/L:
                 break
             L = L*self.gamma_u
 
         M = L
         self.L = M/self.gamma_d
         self.x = three_cases(self.gradient_f(y) - M*y, self.penalty, M)
-        self.C = self.C + a * self.gradient_f(self.x)
-        self.A = self.A + a
+        self.C = self.C + a * self.gradient_f(self.x) / (2 * L)
+        self.A = self.A + a / (2 * L)
         self.v = three_cases(self.C - self.x_0, self.penalty*self.A, 1)
         self.y = y
 
