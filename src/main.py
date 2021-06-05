@@ -29,8 +29,8 @@ if __name__ == '__main__':
     # ax.scatter(X[:, 0], X[:, 1], c=y)
     # plt.show()
 
-    penalty = 1
-    no_steps = 2000
+    penalty = 0.01
+    no_steps = 200
     gamma_u = 2
     gamma_d = 2
     L_0 = 10
@@ -130,5 +130,21 @@ if __name__ == '__main__':
     ax.set_ylabel(f"mean L value in last {steps_mean} steps")
     ax.set_yscale("log")
     plt.suptitle(f"penalty {penalty}, gamma_u {gamma_u}, gamma_d {gamma_d}, L_0 {L_0}, mi {mi}")
+    plt.legend()
+    plt.show()
+
+    cumulative_basic_times = np.cumsum(basic_times)
+    cumulative_dual_times = np.cumsum(dual_times)
+    cumulative_accelerated_times = np.cumsum(accelerated_times)
+
+    fig, ax = plt.subplots(figsize=(9,9))
+    ax.plot(cumulative_basic_times, basic_errors, label='basic')
+    ax.plot(cumulative_dual_times, dual_errors, label='dual gradient')
+    ax.plot(cumulative_accelerated_times, accelerated_errors, label='accelerated')
+    ax.set_xlabel("time of execution [s]")
+    ax.set_ylabel("loss function")
+    ax.set_yscale("log")
+    plt.suptitle(f"penalty {penalty}, gamma_u {gamma_u}, gamma_d {gamma_d}, L_0 {L_0}, mi {mi}")
+    ax.set_title("Loss function by time of execution")
     plt.legend()
     plt.show()
