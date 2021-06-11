@@ -3,6 +3,9 @@ import math
 import numpy as np
 
 
+class DebugInfo:
+    NUM_PERFORMED_ITERATIONS = 0
+
 class AcceleratedMethod:
     def __init__(self, L_0, mi, x_0, gamma_u, gamma_d, f, gradient_f, penalty) -> None:
         self.L = L_0
@@ -21,8 +24,10 @@ class AcceleratedMethod:
     def accelerated_gradient_iteration(self):
         L = self.L
         mi = self.mi
+        DebugInfo.NUM_PERFORMED_ITERATIONS = 0
 
         while True:
+            DebugInfo.NUM_PERFORMED_ITERATIONS += 1
             a = 2 + 2*mi*self.A + math.sqrt((2+2*mi*self.A)*(2+2*mi*self.A) + 8*L*self.A*(1+mi*self.A))
             y = (self.A*self.x*2*L + a*self.v) / (self.A*2*L + a)
             T = three_cases(self.gradient_f(y) - L*y, self.penalty, L)
